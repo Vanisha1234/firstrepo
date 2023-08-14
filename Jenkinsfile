@@ -1,45 +1,38 @@
 pipeline {
     agent any
-    
+
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
         stage('Build') {
             steps {
                 script {
-                    def dockerImage = docker.build('my-node-app:latest', '.')
+                    echo 'Building the Docker image...'
+                    sh 'docker build -t my-node-app:latest .'
                 }
             }
         }
-        
+
         stage('Test') {
             steps {
                 script {
-                    dockerImage.inside {
-                        sh 'npm install'
-                        sh 'npm test'
-                    }
+                    echo 'Running tests...'
+                    sh 'docker run --rm my-node-app:latest npm test'
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 script {
-                    dockerImage.inside {
-                        sh 'npm start'
-                    }
+                    echo 'Deploying the application...'
+                    sh 'docker run --rm -d -p 8080:80 my-node-app:latest'
                 }
             }
         }
     }
-    
+
     post {
         always {
+            echo 'Cleaning up...'
             cleanWs()
         }
     }
