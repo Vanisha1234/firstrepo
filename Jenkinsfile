@@ -1,39 +1,37 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Build') {
             steps {
-                script {
-                    echo 'Building the Docker image...'
-                    sh 'docker build -t my-node-app:latest .'
-                }
+                echo 'Building the project...'
             }
         }
-
+        
         stage('Test') {
             steps {
-                script {
-                    echo 'Running tests...'
-                    sh 'docker run --rm my-node-app:latest npm test'
-                }
+                echo 'Running tests...'
             }
         }
-
+        
         stage('Deploy') {
             steps {
-                script {
-                    echo 'Deploying the application...'
-                    sh 'docker run --rm -d -p 8080:80 my-node-app:latest'
-                }
+                echo 'Deploying the project...'
             }
         }
     }
-
+    
     post {
         always {
-            echo 'Cleaning up...'
-            cleanWs()
+            echo 'This will always run'
+        }
+        
+        success {
+            echo 'This will run only if the pipeline succeeds'
+        }
+        
+        failure {
+            echo 'This will run only if the pipeline fails'
         }
     }
 }
